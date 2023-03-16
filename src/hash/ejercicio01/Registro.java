@@ -44,11 +44,12 @@ public class Registro {
             resumenHexadecimal = String.format("%064x", new BigInteger(1, resumen));
 
             //Preparo el fichero para escribir
-            bw = new BufferedWriter(new FileWriter("credenciales.cre"));
+            bw = new BufferedWriter(new FileWriter("credenciales.cre", true));
 
             //Escribo el fichero
             bw.write(nombre + " " + resumenHexadecimal);
             bw.newLine();
+            bw.flush();
 
             //Cierro el fichero
             bw.close();
