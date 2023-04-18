@@ -6,7 +6,14 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Scanner;
 
+/**
+ * Clase que valida el acceso de un usuario
+ */
 public class Validar {
+    /**
+     * Metodo principal
+     * @param args
+     */
     public static void main(String[] args) {
 
         //Declaramos las variables
@@ -32,10 +39,10 @@ public class Validar {
     }
 
     /**
-     * Método que comprueba si el
-     * @param usuario  y la
-     * @param password son iguales a los sacados del fichero credenciales.cre
-     * @return true si son iguales y false si no lo son
+     * Método que comprueba si el usuario y la contraseña introducidos por el usuario son válidos
+     * @param usuario Nombre de usuario introducido por el usuario
+     * @param password Contraseña introducida por el usuario
+     * @return true si el usuario y la contraseña son válidos, false en caso contrario
      */
     private static boolean validar(String usuario, String password) {
 
@@ -57,13 +64,14 @@ public class Validar {
             br = new BufferedReader(new FileReader("credenciales.cre"));
 
             linea = br.readLine();
-            while (linea != null) {      //Mientras se lea una linea en el fichero
+            while (linea != null && !esValido) {      //Mientras se lea una linea en el fichero
+
+                //TODO: Buscar una forma más bonita de poner el if de abajo
 
                 //Si el usuario y el resumen de la contraseña son iguales a los del fichero, esValido es true
                 if (CalculoHash.compararResumenes(linea.split(" ")[0], usuario) &&
                         CalculoHash.compararResumenes(linea.split(" ")[1], resumenValidarHexadecimal)) {
                     esValido = true;
-                    break;
                 }
 
                 linea = br.readLine();  //Leemos la siguiente línea

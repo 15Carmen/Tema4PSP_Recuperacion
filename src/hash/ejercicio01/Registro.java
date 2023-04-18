@@ -33,8 +33,6 @@ public class Registro {
         String resumenHexadecimal;  //Variable para almacenar el resumen en hexadecimal
         BufferedWriter bw;          //Variable para escribir en el fichero
 
-        //TODO: Que los registros no se borren cada vez que se ejecuta el programa
-
         try {
 
             //Obtenemos el resumen de la contraseña
