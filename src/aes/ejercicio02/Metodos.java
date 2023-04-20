@@ -21,6 +21,7 @@ public class Metodos {
      */
     public static Key obtenerClave(String claveUsuario) {
 
+        // Creamos la clave
         Key clave = new SecretKeySpec(claveUsuario.getBytes(), 0, LONGITUD_BLOQUE, "AES");
 
         return clave;
@@ -34,7 +35,8 @@ public class Metodos {
      */
     public static String cifrar(String texto, Key clave) {
 
-        String textoCifrado = "";
+        //Declaramos las variables
+        String textoCifrado = "";   // Variable donde guardaremos el texto cifrado
 
         try {
             // Creamos un Cipher
@@ -71,7 +73,43 @@ public class Metodos {
         return textoCifrado;
     }
 
-    public static void descifrar() {
+    /**
+     * Método que descifra el texto pasado por parámetro
+     * @param textoCifrado texto cifrado
+     * @param clave clave de cifrado
+     * @return el texto descifrado
+     */
+    public static String descifrar(String textoCifrado, Key clave) {
+
+        //Declaramos las variables
+        String textoDescifrado = "";    // Variable donde guardaremos el texto descifrado
+
+        try {
+            // Creamos un Cipher
+            Cipher cipher = Cipher.getInstance(ALGORITMO);
+
+            // Iniciamos el descifrado con la clave que hemos creado en el método anterior
+            cipher.init(Cipher.DECRYPT_MODE, clave);
+
+            // Llevar a cabo el descifrado
+            byte[] byteTextoDescifrado = cipher.doFinal(Base64.getDecoder().decode(textoCifrado));
+
+            // Guardamos el String con el texto descifrado en una variable
+            textoDescifrado = new String(byteTextoDescifrado);
+
+        } catch (NoSuchPaddingException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalBlockSizeException e) {
+            throw new RuntimeException(e);
+        } catch (BadPaddingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return textoDescifrado;
 
     }
 

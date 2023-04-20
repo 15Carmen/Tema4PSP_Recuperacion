@@ -1,4 +1,4 @@
-package hash.generar;
+package hash.ejemplos;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;

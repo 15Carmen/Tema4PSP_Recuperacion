@@ -6,11 +6,21 @@ import java.security.NoSuchAlgorithmException;
 
 public class CalculoHash {
 
-
+    /**
+     * Método que compara el resumen del fichero con el resumen introducido por teclado
+     * @param resumenFichero Resumen del fichero
+     * @param resumenIntroducidoTeclado Resumen introducido por teclado
+     * @return Devuelve true si son iguales, false si no lo son
+     */
     public static boolean compararResumenes(String resumenFichero, String resumenIntroducidoTeclado){
         return resumenFichero.equals(resumenIntroducidoTeclado);
     }
 
+    /**
+     * Método que calcula el resumen de un mensaje
+     * @param mensajeACodificar Mensaje que se quiere codificar
+     * @return Devuelve el resumen del mensaje
+     */
     public static byte[] getDigest(String mensajeACodificar){
 
         //Declaramos las variables

@@ -7,10 +7,14 @@ import java.math.BigInteger;
 import java.util.Scanner;
 
 public class Registro {
+    /**
+     * Metodo principal
+     * @param args
+     */
     public static void main(String[] args) {
         //Declaramos las variables
-        String usuario;
-        String password;
+        String usuario;     //Variable para almacenar el nombre de usuario
+        String password;    //Variable para almacenar la contraseña
 
         //Declaramos el scanner
         Scanner sc = new Scanner(System.in);
@@ -26,6 +30,11 @@ public class Registro {
 
     }
 
+    /**
+     * Método que guarda en un fichero las credenciales del usuario
+     * @param nombre Nombre de usuario
+     * @param password Contraseña
+     */
     private static void guardarCredenciales(String nombre, String password) {
 
         //Declaramos las variables
