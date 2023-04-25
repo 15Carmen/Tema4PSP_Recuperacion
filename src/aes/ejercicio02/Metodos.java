@@ -21,8 +21,13 @@ public class Metodos {
      */
     public static Key obtenerClave(String claveUsuario) {
 
+        Key clave = null;
         // Creamos la clave
-        Key clave = new SecretKeySpec(claveUsuario.getBytes(), 0, LONGITUD_BLOQUE, "AES");
+        try {
+            clave = new SecretKeySpec(claveUsuario.getBytes(), 0, LONGITUD_BLOQUE, "AES");
+        }catch (IllegalArgumentException e){
+            System.err.println("La clave debe tener 16 caracteres");
+        }
 
         return clave;
     }
@@ -98,15 +103,15 @@ public class Metodos {
             textoDescifrado = new String(byteTextoDescifrado);
 
         } catch (NoSuchPaddingException e) {
-            throw new RuntimeException(e);
+            System.err.println("El padding seleccionado no existe");
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            System.err.println("No existe el algoritmo especificado");
         } catch (InvalidKeyException e) {
-            throw new RuntimeException(e);
+            System.err.println("La clave utilizada no es válida");
         } catch (IllegalBlockSizeException e) {
-            throw new RuntimeException(e);
+            System.err.println("El tamaño del bloque elegido no es correcto");
         } catch (BadPaddingException e) {
-            throw new RuntimeException(e);
+            System.err.println("El padding seleccionado no es correcto");
         }
 
         return textoDescifrado;

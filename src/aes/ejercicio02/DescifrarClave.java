@@ -3,6 +3,7 @@ package aes.ejercicio02;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.security.Key;
 import java.util.Scanner;
 
 /**
@@ -12,6 +13,7 @@ public class DescifrarClave {
 
     /**
      * Método principal
+     *
      * @param args
      */
     public static void main(String[] args) {
@@ -25,28 +27,35 @@ public class DescifrarClave {
         System.out.println("Introduce la contraseña para descifrar el texto (debe tener 16 caracteres): ");
         clave = sc.nextLine();
 
-        //Mostramos el texto descifrado por pantalla
-        try {
+        //Mientras que la clave no tenga 16 caracteres, se le pedirá al usuario que la introduzca de nuevo
+        while (clave.length() != 16){
+            System.out.println("La clave debe tener 16 caracteres. Introduce la contraseña que desea utilizar para descifrar el texto: ");
+            clave = sc.nextLine();
+        }
+
+        if (clave.equals(Metodos.obtenerClave(clave).toString())) {
+            //Mostramos el texto descifrado por pantalla
             System.out.println("El texto descifrado es: ");
             System.out.println(leerTextCifrado(clave));
-
-        } catch (Exception e) { //Si la clave no es válida, se mostrará un mensaje de error
-            System.err.println("Clave incorrecta");
-            e.printStackTrace();
+        }else {
+            System.out.println("La clave introducida no es correcta");
         }
+
         sc.close();
     }
 
     /**
      * Precondición: El fichero textoCifrado.txt debe existir y contener un texto cifrado
      * Método que lee el texto cifrado de un fichero y lo descifra
+     *
      * @param clave clave de descifrado
      * @return texto descifrado
      */
-    public static String leerTextCifrado(String clave){
+    public static String leerTextCifrado(String clave) {
 
         //Declaramos las variables
         String textoCifrado = null; //Variable que almacenará el texto cifrado
+        Key claveCifrado = Metodos.obtenerClave(clave); //Variable que almacenará la clave de cifrado
 
         try {
             //Creamos un BufferedReader para leer el fichero
@@ -60,6 +69,6 @@ public class DescifrarClave {
             e.printStackTrace();
         }
         //Devolvemos el texto descifrado
-        return Metodos.descifrar(textoCifrado, Metodos.obtenerClave(clave));
+        return Metodos.descifrar(textoCifrado,claveCifrado);
     }
 }

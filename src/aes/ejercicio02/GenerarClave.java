@@ -3,6 +3,7 @@ package aes.ejercicio02;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.Key;
 import java.util.Scanner;
 
 /**
@@ -12,6 +13,7 @@ public class GenerarClave {
 
     /**
      * Método principal
+     *
      * @param args
      */
     public static void main(String[] args) {
@@ -31,37 +33,54 @@ public class GenerarClave {
         System.out.println("Introduce la contraseña que desea utilizar para cifrar el texto (debe tener 16 caracteres): ");
         clave = sc.nextLine();
 
-        try {
-            //Guardamos el texto cifrado en un fichero
-            guardarTextoCifrado(texto, clave);
-
-            System.out.println("El texto se ha cifrado correctamente y se ha guardado en el fichero cifrado.txt");
-        } catch (Exception e){
-            System.err.println("Clave no válida");
+        //Mientras que la clave no tenga 16 caracteres, se le pedirá al usuario que la introduzca de nuevo
+        while (clave.length() != 16){
+            System.out.println("La clave debe tener 16 caracteres. Introduce la contraseña que desea utilizar para cifrar el texto: ");
+            clave = sc.nextLine();
         }
 
+        //Guardamos el texto cifrado en un fichero
+       if (guardarTextoCifrado(texto,clave)){
+           System.out.println("El texto se ha cifrado correctamente y se ha guardado en el fichero cifrado.txt");
+       }
+
+        sc.close();
     }
 
     /**
      * Método que guarda el texto cifrado en un fichero
+     *
      * @param texto texto a cifrar
      * @param clave clave de cifrado
      */
-    public static void guardarTextoCifrado(String texto, String clave){
+    public static boolean guardarTextoCifrado(String texto, String clave) {
+
+        Key claveCifrado = Metodos.obtenerClave(clave);
+        boolean cifradoCorrecto = false;
+
         try {
             //Creamos un BufferedWriter para escribir en el fichero
             BufferedWriter bw = new BufferedWriter(new FileWriter("src/aes/ejercicio02/textoCifrado.txt"));
-            //Escribimos el texto cifrado en el fichero
-            bw.write(Metodos.cifrar(texto, Metodos.obtenerClave(clave)));
-            //Hacemos un salto de línea
-            bw.newLine();
-            //Cerramos el buffer
-            bw.close();
+
+            if (claveCifrado != null){
+                //Escribimos el texto cifrado en el fichero
+                bw.write(Metodos.cifrar(texto,claveCifrado));
+                //Hacemos un salto de línea
+                bw.newLine();
+                //Cerramos el buffer
+                bw.close();
+                cifradoCorrecto = true;
+            } else {    //Si la clave es igual a null lanzamos un mensaje de error
+                System.out.println("La clave de cifrado no es correcta");
+            }
+
 
             //Capturamos las excepciones y mostramos un mensaje de error correspondiente al tipo de excepción
         } catch (IOException e) {
             System.err.println("No se ha podido guardar el texto cifrado en el fichero");
             e.printStackTrace();
         }
+
+        return cifradoCorrecto;
     }
 }
