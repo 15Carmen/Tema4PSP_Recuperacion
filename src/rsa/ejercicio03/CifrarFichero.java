@@ -19,13 +19,16 @@ public class CifrarFichero {
             //Tomamos la clave privada del emisor
             PrivateKey clavePrivadaEmisor = EmisorClaves.getClavePrivada();
 
+            //Creamos el cipher del emisor del mensaje con el algoritmo RSA
             Cipher cifradorEmisor = Cipher.getInstance("RSA");
 
             //Desciframos la clave privada
             cifradorEmisor.init(Cipher.ENCRYPT_MODE, clavePrivadaEmisor);
 
+            //Tomamos la clave pública del receptor
             PublicKey clavePublicaReceptor = ReceptorClaves.getClavePublica();
 
+            //Creamos el cipher del receptor con el algoritmo RSA
             Cipher cifradorReceptor = Cipher.getInstance("RSA");
             cifradorReceptor.init(Cipher.ENCRYPT_MODE, clavePublicaReceptor);
 
