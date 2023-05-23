@@ -7,14 +7,24 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Scanner;
+
+/**
+ * Clase que descifrará un fichero cifrado con RSA
+ */
 public class DescifrarFichero {
+    /**
+     * Método principal
+     * @param args
+     */
     public static void main(String[] args) {
 
-        byte [] mensajeDescifradoReceptor;
-        byte [] mensajeDescifradoEmisor;
+        //Declaramos las variables
+        byte [] mensajeDescifradoReceptor;  //Array de bytes que contendrá el mensaje descifrado por el receptor
+        byte [] mensajeDescifradoEmisor;    //Array de bytes que contendrá el mensaje descifrado por el emisor
 
         try {
 
+            //Tomamos la clave privada del receptor
             PrivateKey clavePrivadaReceptor = ReceptorClaves.getClavePrivada();
 
             Cipher cifradorReceptor = Cipher.getInstance("RSA");
@@ -61,9 +71,10 @@ public class DescifrarFichero {
         //Declaramos las variables
         String ruta;
 
-        //
+        //Declaramos el scanner para poder leer por consola
         Scanner sc = new Scanner(System.in);
 
+        //Le pedimos al usuario que introduzca la ruta del fichero a descifrar
         System.out.println("Introduce la ruta del fichero a descifrar: ");
         ruta = sc.nextLine();
 
