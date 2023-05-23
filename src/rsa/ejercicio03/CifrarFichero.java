@@ -1,12 +1,12 @@
 package rsa.ejercicio03;
 
 import javax.crypto.*;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.security.*;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Scanner;
+
+import static javax.crypto.Cipher.getInstance;
 
 public class CifrarFichero {
     public static void main(String[] args) {
@@ -17,20 +17,23 @@ public class CifrarFichero {
         try {
 
             //Tomamos la clave privada del emisor
-            PrivateKey clavePrivadaEmisor = EmisorClaves.getClavePrivada();
+            Key clavePrivadaEmisor = EmisorClaves.getClavePrivada();
 
-            Cipher cifradorEmisor = Cipher.getInstance("RSA");
+            //Creamos el cipher del emisor del mensaje con el algoritmo RSA
+            Cipher cifradorEmisor = getInstance("RSA");
 
             //Desciframos la clave privada
             cifradorEmisor.init(Cipher.ENCRYPT_MODE, clavePrivadaEmisor);
 
-            PublicKey clavePublicaReceptor = ReceptorClaves.getClavePublica();
+            //Tomamos la clave pública del receptor
+           Key clavePublicaReceptor = ReceptorClaves.getClavePublica();
 
-            Cipher cifradorReceptor = Cipher.getInstance("RSA");
+            //Creamos el cipher del receptor con el algoritmo RSA
+            Cipher cifradorReceptor = getInstance("RSA");
             cifradorReceptor.init(Cipher.ENCRYPT_MODE, clavePublicaReceptor);
 
             mensajeCifradoPrivada = cifradorEmisor.doFinal(leerFichero().readAllBytes());
-            mensajeCifradoPublica = cifradorReceptor.doFinal(mensajeCifradoPrivada);
+            mensajeCifradoPublica = cifrarContenido(mensajeCifradoPrivada, clavePublicaReceptor);
 
             guardarFichero(mensajeCifradoPublica);
 
@@ -54,8 +57,39 @@ public class CifrarFichero {
         } catch (IOException e) {
             System.err.println("Error de lectura del fichero");
             e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Error en la entrada/salida de datos");
+            e.printStackTrace();
         }
     }
+
+    public static byte[] cifrarContenido(byte[] contenido, Key clave) throws Exception {
+        // Crear objeto Cipher
+        Cipher cifrador = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+
+        // Inicializar cifrador en modo cifrado con la clave proporcionada
+        cifrador.init(Cipher.ENCRYPT_MODE, clave);
+
+        // Calcular tamaño del bloque
+        int tamanoBloque = (((RSAPublicKey) clave).getModulus().bitLength() + 7) / 8 - 11;
+
+        // Inicializar buffer de salida
+        ByteArrayOutputStream bufferSalida = new ByteArrayOutputStream();
+
+        // Cifrar el contenido en bloques
+        int offset = 0;
+        while (offset < contenido.length) {
+            int tamanoBloqueActual = Math.min(tamanoBloque, contenido.length - offset);
+            byte[] bloqueCifrado = cifrador.doFinal(contenido, offset, tamanoBloqueActual);
+            bufferSalida.write(bloqueCifrado);
+            offset += tamanoBloqueActual;
+        }
+
+        // Devolver contenido cifrado completo
+        return bufferSalida.toByteArray();
+    }
+
+
     private static FileInputStream leerFichero (){
 
         Scanner sc = new Scanner(System.in);
