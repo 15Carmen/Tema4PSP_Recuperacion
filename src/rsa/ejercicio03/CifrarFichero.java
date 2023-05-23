@@ -2,6 +2,7 @@ package rsa.ejercicio03;
 
 import javax.crypto.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Scanner;
@@ -11,33 +12,35 @@ import static javax.crypto.Cipher.getInstance;
 public class CifrarFichero {
     public static void main(String[] args) {
 
-        byte [] mensajeCifradoPrivada;
-        byte [] mensajeCifradoPublica;
+        byte [] mensajeCifradoPrivadaEmisor;
+        byte [] mensajeCifradoPublicaReceptor;
+        byte [] mensajeFichero = leerFichero().getBytes(StandardCharsets.UTF_8);
 
         try {
 
-            //Tomamos la clave privada del emisor
-            Key clavePrivadaEmisor = EmisorClaves.getClavePrivada();
-
-            //Creamos el cipher del emisor del mensaje con el algoritmo RSA
-            Cipher cifradorEmisor = getInstance("RSA");
-
-            //Desciframos la clave privada
-            cifradorEmisor.init(Cipher.ENCRYPT_MODE, clavePrivadaEmisor);
+            //Tomamos primero la clave privada del emisor
+            PrivateKey clavePrivadaEmisor = EmisorClaves.getClavePrivada();
 
             //Tomamos la clave pública del receptor
-           Key clavePublicaReceptor = ReceptorClaves.getClavePublica();
+            PublicKey clavePublicaReceptor = ReceptorClaves.getClavePublica();
+
+            //Creamos el cipher del emisor del mensaje con el algoritmo RSA
+            Cipher cifradorEmisor = getInstance("RSA/ECB/PKCS1Padding");
+            //Ciframos la clave privada del emisor
+            cifradorEmisor.init(Cipher.ENCRYPT_MODE, clavePrivadaEmisor);
+
 
             //Creamos el cipher del receptor con el algoritmo RSA
             Cipher cifradorReceptor = getInstance("RSA");
             cifradorReceptor.init(Cipher.ENCRYPT_MODE, clavePublicaReceptor);
 
-            mensajeCifradoPrivada = cifradorEmisor.doFinal(leerFichero().readAllBytes());
-            mensajeCifradoPublica = cifrarContenido(mensajeCifradoPrivada, clavePublicaReceptor);
 
-            guardarFichero(mensajeCifradoPublica);
+            mensajeCifradoPrivadaEmisor = cifradorEmisor.doFinal(mensajeFichero);
+            mensajeCifradoPublicaReceptor = cifrarContenido(mensajeCifradoPrivadaEmisor, clavePublicaReceptor);
 
-            System.out.println("Mensaje cifrado correctamente");
+            //Guardamos el mensaje cifrado en un fichero
+            guardarFichero(mensajeCifradoPublicaReceptor);
+
 
         } catch (NoSuchPaddingException e) {
             System.err.println("No existe el padding seleccionado");
@@ -89,24 +92,29 @@ public class CifrarFichero {
         return bufferSalida.toByteArray();
     }
 
-
-    private static FileInputStream leerFichero (){
-
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("Introduce la ruta del fichero a cifrar: ");
-        String ruta = sc.nextLine();
-
-        FileInputStream fileInputStream = null;
+    private static String leerFichero(){
+        BufferedReader br;
+        String linea = null;
 
         try {
-            fileInputStream = new FileInputStream(ruta);
-            sc.close();
+            br = new BufferedReader(new FileReader("../../ejercicio03/prueba.txt"));
+
+            linea = br.readLine();
+
+            while(linea != null) {
+                linea = br.readLine();
+            }
+
+            br.close();
+
         } catch (FileNotFoundException e) {
-            System.err.println("Fichero no encontrado");
-            e.printStackTrace();
+            System.err.println("No se ha encontrado el fichero");
+        } catch (IOException e) {
+            System.err.println("Error de lectura del fichero");
         }
-        return fileInputStream;
+
+        return linea;
+
     }
 
     private static void guardarFichero (byte [] mensajeCifrado){
