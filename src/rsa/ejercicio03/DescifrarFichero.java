@@ -54,7 +54,7 @@ public class DescifrarFichero {
             System.err.println("El padding utilizado es erróneo");
             e.printStackTrace();
         } catch (InvalidKeyException e) {
-            System.err.println("La clave introducida no es válida");
+            System.err.println("La clave introducida no es válida para descifrar el fichero");
             e.printStackTrace();
         } catch (IOException e) {
             System.err.println("La clave introducida no es válida");
@@ -80,7 +80,7 @@ public class DescifrarFichero {
 
         FileInputStream fileInputStream = null;
         try {
-            fileInputStream = new FileInputStream("src/3jercicio3/mensajeCifrado.txt");
+            fileInputStream = new FileInputStream("src/rsa/ejercicio03/" + ruta);
             sc.close();
         } catch (FileNotFoundException e) {
             System.err.println("Fichero no encontrado");

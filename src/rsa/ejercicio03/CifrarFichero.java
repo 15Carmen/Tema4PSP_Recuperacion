@@ -44,25 +44,25 @@ public class CifrarFichero {
 
         } catch (NoSuchPaddingException e) {
             System.err.println("No existe el padding seleccionado");
-            e.printStackTrace();
+            e.getLocalizedMessage();
         } catch (NoSuchAlgorithmException e) {
             System.err.println("El algoritmo seleccionado no existe");
-            e.printStackTrace();
+            e.getLocalizedMessage();
         } catch (IllegalBlockSizeException e) {
             System.err.println("El tamaño del bloque utilizado no es correcto");
-            e.printStackTrace();
+            e.getLocalizedMessage();
         } catch (BadPaddingException e) {
             System.err.println("El padding utilizado es erróneo");
-            e.printStackTrace();
+            e.getLocalizedMessage();
         } catch (InvalidKeyException e) {
-            System.err.println("La clave introducida no es válida");
-            e.printStackTrace();
+            System.err.println("La clave introducida no es válida para cifrar el fichero");
+            e.getLocalizedMessage();
         } catch (IOException e) {
             System.err.println("Error de lectura del fichero");
-            e.printStackTrace();
+            e.getLocalizedMessage();
         } catch (Exception e) {
             System.out.println("Error en la entrada/salida de datos");
-            e.printStackTrace();
+            e.getLocalizedMessage();
         }
     }
 
@@ -93,24 +93,32 @@ public class CifrarFichero {
     }
 
     private static String leerFichero(){
-        BufferedReader br;
+        BufferedReader br = null;
         String linea = null;
 
         try {
-            br = new BufferedReader(new FileReader("../../ejercicio03/prueba.txt"));
+            br = new BufferedReader(new FileReader("src/rsa/ejercicio03/prueba.txt"));
 
             linea = br.readLine();
 
             while(linea != null) {
-                linea = br.readLine();
+                linea += " ";
+                linea += br.readLine();
             }
-
-            br.close();
 
         } catch (FileNotFoundException e) {
             System.err.println("No se ha encontrado el fichero");
+            e.getLocalizedMessage();
         } catch (IOException e) {
             System.err.println("Error de lectura del fichero");
+            e.getLocalizedMessage();
+        } finally {
+            try {
+                br.close();
+            } catch (IOException e) {
+                System.err.println("Error al cerrar el fichero");
+                e.getLocalizedMessage();
+            }
         }
 
         return linea;
@@ -119,15 +127,27 @@ public class CifrarFichero {
 
     private static void guardarFichero (byte [] mensajeCifrado){
 
+        BufferedWriter bw = null;
+        String mensajeCifradoString = new String(mensajeCifrado, StandardCharsets.UTF_8);
         try {
 
-            FileOutputStream fileOutputStream = new FileOutputStream("src/Ejercicio3/mensajeCifrado.txt");
+            bw = new BufferedWriter(new FileWriter("src/rsa/ejercicio03/mensajeCifrado.txt"));
+            bw.write(mensajeCifradoString);
+            bw.flush();
 
-            fileOutputStream.write(mensajeCifrado);
-            fileOutputStream.close();
         } catch (IOException e) {
             System.err.println("Error de escritura del fichero");
-            e.printStackTrace();
+            e.getLocalizedMessage();
+        }finally {
+            try {
+                if (bw != null){
+                    bw.close();
+                }
+
+            } catch (IOException e) {
+                System.err.println("Error al cerrar el fichero");
+                e.getLocalizedMessage();
+            }
         }
     }
 }

@@ -38,7 +38,7 @@ public class EmisorClaves {
             claves = generador.generateKeyPair();
         } catch (NoSuchAlgorithmException e) {
             System.err.println("No existe el algoritmo especificado");
-            e.printStackTrace();
+            e.getLocalizedMessage();
         }
 
         return claves;
@@ -61,10 +61,10 @@ public class EmisorClaves {
 
         } catch (FileNotFoundException e) {
             System.err.println("No se encuentra el fichero.");
-            e.printStackTrace();
+            e.getLocalizedMessage();
         } catch (IOException e) {
             System.err.println("Se ha producido un error durante la escritura en el fichero.");
-            e.printStackTrace();
+            e.getLocalizedMessage();
         }
 
     }
@@ -87,14 +87,14 @@ public class EmisorClaves {
             clavePublica = keyFactory.generatePublic(publicKeySpec);
 
         } catch (IOException e) {
-            System.err.println("Se ha producido en la lectura del fichero");
-            e.printStackTrace();
+            System.err.println("Se ha producido en la lectura del fichero de clave pública del emisor");
+            e.getLocalizedMessage();
         } catch (NoSuchAlgorithmException e) {
             System.err.println("No existe el algoritmo especificado");
-            e.printStackTrace();
+            e.getLocalizedMessage();
         } catch (InvalidKeySpecException e) {
-            System.err.println("La clave indicada no es válida");
-            e.printStackTrace();
+            System.err.println("La clave indicada en la clave publica del emisor no es válida");
+            e.getLocalizedMessage();
         }
         return clavePublica;
     }
@@ -114,14 +114,14 @@ public class EmisorClaves {
             clavePrivada = keyFactory.generatePrivate(privateKeySpec);
 
         } catch (IOException e) {
-            System.err.println("Se ha producido en la lectura del fichero");
-            e.printStackTrace();
+            System.err.println("Se ha producido en la lectura del fichero de clave privada del emisor");
+            e.getLocalizedMessage();
         } catch (NoSuchAlgorithmException e) {
             System.err.println("No existe el algoritmo especificado");
-            e.printStackTrace();
+            e.getLocalizedMessage();
         } catch (InvalidKeySpecException e) {
-            System.err.println("La clave indicada no es válida");
-            e.printStackTrace();
+            System.err.println("La clave indicada en la clave privada del emisor no es válida");
+            e.getLocalizedMessage();
         }
         return clavePrivada;
     }
