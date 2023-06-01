@@ -19,10 +19,10 @@ public class CifrarFichero {
         try {
 
             //Tomamos primero la clave privada del emisor
-            PrivateKey clavePrivadaEmisor = EmisorClaves.getClavePrivada();
+            PrivateKey clavePrivadaEmisor = KeysManager.getClavePrivada(KeysManager.PRIVATE_KEY_FILE_EMISOR);
 
             //Tomamos la clave pública del receptor
-            PublicKey clavePublicaReceptor = ReceptorClaves.getClavePublica();
+            PublicKey clavePublicaReceptor = KeysManager.getClavePublica(KeysManager.PUBLIC_KEY_FILE_RECEPTOR);
 
             //Creamos el cipher del emisor del mensaje con el algoritmo RSA
             Cipher cifradorEmisor = getInstance("RSA/ECB/PKCS1Padding");
@@ -44,25 +44,25 @@ public class CifrarFichero {
 
         } catch (NoSuchPaddingException e) {
             System.err.println("No existe el padding seleccionado");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         } catch (NoSuchAlgorithmException e) {
             System.err.println("El algoritmo seleccionado no existe");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         } catch (IllegalBlockSizeException e) {
             System.err.println("El tamaño del bloque utilizado no es correcto");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         } catch (BadPaddingException e) {
             System.err.println("El padding utilizado es erróneo");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         } catch (InvalidKeyException e) {
             System.err.println("La clave introducida no es válida para cifrar el fichero");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         } catch (IOException e) {
             System.err.println("Error de lectura del fichero");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         } catch (Exception e) {
             System.out.println("Error en la entrada/salida de datos");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         }
     }
 
@@ -79,12 +79,17 @@ public class CifrarFichero {
         // Inicializar buffer de salida
         ByteArrayOutputStream bufferSalida = new ByteArrayOutputStream();
 
-        // Cifrar el contenido en bloques
+        // Procesar el texto en bloques del tamaño del bloque
         int offset = 0;
+        //Mientras el offset sea menor que el tamaño del contenido
         while (offset < contenido.length) {
+            //El tamaño del bloque actual será el mínimo entre el tamaño del bloque y el tamaño del contenido menos el offset
             int tamanoBloqueActual = Math.min(tamanoBloque, contenido.length - offset);
+            //Ciframos el contenido desde el offset hasta el tamaño del bloque actual
             byte[] bloqueCifrado = cifrador.doFinal(contenido, offset, tamanoBloqueActual);
+            //Escribimos el bloque cifrado en el buffer de salida
             bufferSalida.write(bloqueCifrado);
+            //Aumentamos el offset en el tamaño del bloque actual
             offset += tamanoBloqueActual;
         }
 
@@ -95,33 +100,35 @@ public class CifrarFichero {
     private static String leerFichero(){
         BufferedReader br = null;
         String linea = null;
+        String texto = null;
 
         try {
             br = new BufferedReader(new FileReader("src/rsa/ejercicio03/prueba.txt"));
 
             linea = br.readLine();
+            texto = linea;
 
             while(linea != null) {
-                linea += " ";
-                linea += br.readLine();
+                linea = br.readLine();
+                texto = texto + "\n" + linea;
             }
 
         } catch (FileNotFoundException e) {
             System.err.println("No se ha encontrado el fichero");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         } catch (IOException e) {
             System.err.println("Error de lectura del fichero");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         } finally {
             try {
                 br.close();
             } catch (IOException e) {
                 System.err.println("Error al cerrar el fichero");
-                e.getLocalizedMessage();
+                System.out.println(e.getLocalizedMessage());
             }
         }
 
-        return linea;
+        return texto;
 
     }
 
@@ -137,7 +144,7 @@ public class CifrarFichero {
 
         } catch (IOException e) {
             System.err.println("Error de escritura del fichero");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         }finally {
             try {
                 if (bw != null){
@@ -146,7 +153,7 @@ public class CifrarFichero {
 
             } catch (IOException e) {
                 System.err.println("Error al cerrar el fichero");
-                e.getLocalizedMessage();
+                System.out.println(e.getLocalizedMessage());
             }
         }
     }

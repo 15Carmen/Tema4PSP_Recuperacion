@@ -11,14 +11,18 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-public class ReceptorClaves {
+public class KeysManager {
 
-    private static final String PUBLIC_KEY_FILE_RECEPTOR = "public_key_receptor.key";
-    private static final String PRIVATE_KEY_FILE_RECEPTOR = "private_key_receptor.key";
+    public static final String PUBLIC_KEY_FILE_RECEPTOR = "public_key_receptor.key";
+    public static final String PRIVATE_KEY_FILE_RECEPTOR = "private_key_receptor.key";
+    public static final String PUBLIC_KEY_FILE_EMISOR = "public_key_emisor.key";
+    public static final String PRIVATE_KEY_FILE_EMISOR = "private_key_emisor.key";
 
     public static void main(String[] args) {
         KeyPair claves = generarClaves();
-        guardarClaves(claves);
+        guardarClaves(claves, "emisor");
+        claves = generarClaves();
+        guardarClaves(claves, "receptor");
     }
 
     public static KeyPair generarClaves() {
@@ -30,35 +34,47 @@ public class ReceptorClaves {
             claves = generador.generateKeyPair();
         } catch (NoSuchAlgorithmException e) {
             System.err.println("No existe el algoritmo especificado");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         }
 
         return claves;
     }
 
-    public static void guardarClaves(KeyPair claves) {
+    public static void guardarClaves(KeyPair claves, String tipo) {
         FileOutputStream fos;
         try {
-            fos = new FileOutputStream(PUBLIC_KEY_FILE_RECEPTOR);
-            fos.write(claves.getPublic().getEncoded());
-            fos.close();
 
-            fos = new FileOutputStream(PRIVATE_KEY_FILE_RECEPTOR);
-            fos.write(claves.getPrivate().getEncoded());
-            fos.close();
+            if(tipo.equals("emisor")) {
+                fos = new FileOutputStream(PUBLIC_KEY_FILE_EMISOR);
+                fos.write(claves.getPublic().getEncoded());
+                fos.close();
+
+                fos = new FileOutputStream(PRIVATE_KEY_FILE_EMISOR);
+                fos.write(claves.getPrivate().getEncoded());
+                fos.close();
+            }else{
+                fos = new FileOutputStream(PUBLIC_KEY_FILE_RECEPTOR);
+                fos.write(claves.getPublic().getEncoded());
+                fos.close();
+
+                fos = new FileOutputStream(PRIVATE_KEY_FILE_RECEPTOR);
+                fos.write(claves.getPrivate().getEncoded());
+                fos.close();
+            }
+
 
         } catch (FileNotFoundException e) {
             System.err.println("No se encuentra el fichero.");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         } catch (IOException e) {
             System.err.println("Se ha producido un error durante la escritura en el fichero de claves del receptor.");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         }
 
     }
 
-    public static PublicKey getClavePublica() {
-        File ficheroClavePublica = new File(PUBLIC_KEY_FILE_RECEPTOR);
+    public static PublicKey getClavePublica(String ruta) {
+        File ficheroClavePublica = new File(ruta);
         PublicKey clavePublica = null;
         try {
 
@@ -68,20 +84,20 @@ public class ReceptorClaves {
             clavePublica = keyFactory.generatePublic(publicKeySpec);
 
         } catch (IOException e) {
-            System.err.println("Se ha producido en la lectura del fichero de clave publica del receptor");
-            e.getLocalizedMessage();
+            System.err.println("Se ha producido un error en la lectura del fichero de clave publica del receptor");
+            System.out.println(e.getLocalizedMessage());
         } catch (NoSuchAlgorithmException e) {
             System.err.println("No existe el algoritmo especificado");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         } catch (InvalidKeySpecException e) {
             System.err.println("La clave indicada en la clave publica del receptor no es válida");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         }
         return clavePublica;
     }
 
-    public static PrivateKey getClavePrivada() {
-        File ficheroClavePrivada = new File(PRIVATE_KEY_FILE_RECEPTOR);
+    public static PrivateKey getClavePrivada(String ruta) {
+        File ficheroClavePrivada = new File(ruta);
         PrivateKey clavePrivada = null;
         try {
 
@@ -91,14 +107,14 @@ public class ReceptorClaves {
             clavePrivada = keyFactory.generatePrivate(privateKeySpec);
 
         } catch (IOException e) {
-            System.err.println("Se ha producido en la lectura del fichero de clave privada del receptor");
-            e.getLocalizedMessage();
+            System.err.println("Se ha producido un error en la lectura del fichero de clave privada del receptor");
+            System.out.println(e.getLocalizedMessage());
         } catch (NoSuchAlgorithmException e) {
             System.err.println("No existe el algoritmo especificado");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         } catch (InvalidKeySpecException e) {
             System.err.println("La clave indicada en la clave privada del receptor no es válida");
-            e.getLocalizedMessage();
+            System.out.println(e.getLocalizedMessage());
         }
         return clavePrivada;
     }
