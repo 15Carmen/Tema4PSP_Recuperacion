@@ -40,7 +40,7 @@ public class KeysManager {
         return claves;
     }
 
-    public static void guardarClaves(KeyPair claves, String tipo) {
+    public static void  guardarClaves(KeyPair claves, String tipo) {
         FileOutputStream fos;
         try {
 

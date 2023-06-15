@@ -20,6 +20,8 @@ public class DescifrarFichero {
      *
      * @param args
      */
+
+    /*
     public static void main(String[] args) {
 
         //Declaramos las variables
@@ -97,6 +99,64 @@ public class DescifrarFichero {
         // Devolver contenido cifrado completo
         return bufferSalida.toByteArray();
     }
+
+     */
+    public static void main(String[] args) {
+
+        // declaro los array de bytes
+        byte[] mensajeDescifradoReceptor;
+        byte[] mensajeDescifradoEmisor;
+
+        try {
+            // creo las claves públicas
+            PublicKey clavePublicaEmisor = KeysManager.getClavePublica(KeysManager.PUBLIC_KEY_FILE_EMISOR);
+            Cipher cifradorEmisor = Cipher.getInstance("RSA");
+            cifradorEmisor.init(Cipher.DECRYPT_MODE, clavePublicaEmisor);
+
+            // obtengo las claves privadas
+            PrivateKey clavePrivadaReceptor = KeysManager.getClavePrivada(KeysManager.PRIVATE_KEY_FILE_RECEPTOR);
+            Cipher cifradorReceptor = Cipher.getInstance("RSA");
+            cifradorReceptor.init(Cipher.DECRYPT_MODE, clavePrivadaReceptor);
+
+
+            // descifro el mensaje
+            mensajeDescifradoReceptor = cifradorReceptor.doFinal(leerFichero().readAllBytes());
+            mensajeDescifradoEmisor = cifradorEmisor.doFinal(mensajeDescifradoReceptor);
+
+
+            System.out.println("Este es el mensaje secreto: ");
+            // muestro el mensaje descifrado
+            System.out.println(new String(mensajeDescifradoEmisor, StandardCharsets.UTF_8));
+            // capturo las excepciones
+
+        } catch (NoSuchPaddingException e) {
+            System.err.println("No existe el padding seleccionado");
+            e.printStackTrace();
+
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("El algoritmo seleccionado no existe");
+            e.printStackTrace();
+
+        } catch (IllegalBlockSizeException e) {
+            System.err.println("El tamaño del bloque utilizado no es correcto");
+            e.printStackTrace();
+
+        } catch (BadPaddingException e) {
+            System.err.println("El padding utilizado es erróneo");
+            e.printStackTrace();
+
+        } catch (InvalidKeyException e) {
+            System.err.println("La clave introducida no es válida");
+            e.printStackTrace();
+
+        } catch (IOException e) {
+            System.err.println("La clave introducida no es válida");
+            e.printStackTrace();
+
+        }
+    }
+
+
 
     /**
      * Método que lee el fichero a descifrar
