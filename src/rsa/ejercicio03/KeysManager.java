@@ -42,15 +42,19 @@ public class KeysManager {
      */
     private static void guardarClavePrivada(PrivateKey clavePrivada) throws Exception {
 
+        //Guardamos la clave privada en un array de bytes
         byte[] privateKeyBytes = clavePrivada.getEncoded();
+        //Leemos la clave pública
         FileOutputStream privateFos = new FileOutputStream(PRIVATE_KEY_FILE);
+        //Escribimos el archivo de clave privada
         privateFos.write(privateKeyBytes);
+        //Cerramos el flujo de datos
         privateFos.close();
     }
 
     /**
      * Método que guarda la clave pública
-     * @param clavePublica
+     * @param clavePublica clave pública
      * @throws Exception Excepcion que se lanza si ocurre un error
      */
     private static void guardarClavePublica(PublicKey clavePublica) throws Exception {

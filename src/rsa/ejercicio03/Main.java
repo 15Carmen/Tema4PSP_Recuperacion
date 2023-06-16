@@ -14,12 +14,14 @@ public class Main {
             Encriptar.encriptarFichero(INPUT_FILE);
 
             //Desencriptamos el archivo
-            Desencriptar.decryptFile();
+            Desencriptar.desencriptarFicheros();
 
             //Mostramos un mensaje de éxito por consola
             System.out.println("Proceso de encriptación y desencriptación completado con éxito.");
         } catch (Exception e) {
-            System.out.println("Ocurrió un error: " + e.getMessage());
+
+            System.err.println("Error al encriptar o desencriptar el archivo");
+            e.printStackTrace();
         }
     }
 }
