@@ -1,121 +1,69 @@
 package rsa.ejercicio03;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.security.*;
-import java.security.spec.EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 
 public class KeysManager {
 
-    public static final String PUBLIC_KEY_FILE_RECEPTOR = "public_key_receptor.key";
-    public static final String PRIVATE_KEY_FILE_RECEPTOR = "private_key_receptor.key";
-    public static final String PUBLIC_KEY_FILE_EMISOR = "public_key_emisor.key";
-    public static final String PRIVATE_KEY_FILE_EMISOR = "private_key_emisor.key";
+    //Declaramos como constantes la ruta de las claves pública y privada
+    private static final String PRIVATE_KEY_FILE = "private.key";
+    private static final String PUBLIC_KEY_FILE = "public.key";
 
-    public static void main(String[] args) {
-        KeyPair claves = generarClaves();
-        guardarClaves(claves, "emisor");
-        claves = generarClaves();
-        guardarClaves(claves, "receptor");
+    /**
+     * Método que generará las claves
+     * @throws Exception Excepcion que se lanza si ocurre un error
+     */
+    public static void generateKeys() throws Exception {
+
+        KeyPair keyPair = generarKeyPair();
+        guardarClavePrivada(keyPair.getPrivate());
+        guardarClavePublica(keyPair.getPublic());
     }
 
-    public static KeyPair generarClaves() {
-        KeyPairGenerator generador;
-        KeyPair claves = null;
-        try {
-            generador = KeyPairGenerator.getInstance("RSA");
-            generador.initialize(2048);
-            claves = generador.generateKeyPair();
-        } catch (NoSuchAlgorithmException e) {
-            System.err.println("No existe el algoritmo especificado");
-            System.out.println(e.getLocalizedMessage());
-        }
+    /**
+     * Método que generará el KeyPair
+     * @return un KeyPair
+     * @throws NoSuchAlgorithmException Excepción que saltará cuando el algoritmo de alguna de las claves sea distinto a RSA
+     */
+    private static KeyPair generarKeyPair() throws NoSuchAlgorithmException {
 
-        return claves;
+        //Declaramos el generador de KeyPair y le indicamos el algoritmo de incriptación (RSA)
+        KeyPairGenerator generador = KeyPairGenerator.getInstance("RSA");
+        //Inicializamos el generador
+        generador.initialize(2048);
+        //Devolvemos el KeyPair
+        return generador.generateKeyPair();
     }
 
-    public static void  guardarClaves(KeyPair claves, String tipo) {
-        FileOutputStream fos;
-        try {
+    /**
+     * Método que guardará la clave privada
+     * @param clavePrivada clave privada
+     * @throws Exception Excepción que se lanza si ocurre un error
+     */
+    private static void guardarClavePrivada(PrivateKey clavePrivada) throws Exception {
 
-            if(tipo.equals("emisor")) {
-                fos = new FileOutputStream(PUBLIC_KEY_FILE_EMISOR);
-                fos.write(claves.getPublic().getEncoded());
-                fos.close();
-
-                fos = new FileOutputStream(PRIVATE_KEY_FILE_EMISOR);
-                fos.write(claves.getPrivate().getEncoded());
-                fos.close();
-            }else{
-                fos = new FileOutputStream(PUBLIC_KEY_FILE_RECEPTOR);
-                fos.write(claves.getPublic().getEncoded());
-                fos.close();
-
-                fos = new FileOutputStream(PRIVATE_KEY_FILE_RECEPTOR);
-                fos.write(claves.getPrivate().getEncoded());
-                fos.close();
-            }
-
-
-        } catch (FileNotFoundException e) {
-            System.err.println("No se encuentra el fichero.");
-            System.out.println(e.getLocalizedMessage());
-        } catch (IOException e) {
-            System.err.println("Se ha producido un error durante la escritura en el fichero de claves del receptor.");
-            System.out.println(e.getLocalizedMessage());
-        }
-
+        byte[] privateKeyBytes = clavePrivada.getEncoded();
+        FileOutputStream privateFos = new FileOutputStream(PRIVATE_KEY_FILE);
+        privateFos.write(privateKeyBytes);
+        privateFos.close();
     }
 
-    public static PublicKey getClavePublica(String ruta) {
-        File ficheroClavePublica = new File(ruta);
-        PublicKey clavePublica = null;
-        try {
+    /**
+     * Método que guarda la clave pública
+     * @param clavePublica
+     * @throws Exception Excepcion que se lanza si ocurre un error
+     */
+    private static void guardarClavePublica(PublicKey clavePublica) throws Exception {
 
-            byte[] bytesClavePublica = Files.readAllBytes(ficheroClavePublica.toPath());
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(bytesClavePublica);
-            clavePublica = keyFactory.generatePublic(publicKeySpec);
-
-        } catch (IOException e) {
-            System.err.println("Se ha producido un error en la lectura del fichero de clave publica del receptor");
-            System.out.println(e.getLocalizedMessage());
-        } catch (NoSuchAlgorithmException e) {
-            System.err.println("No existe el algoritmo especificado");
-            System.out.println(e.getLocalizedMessage());
-        } catch (InvalidKeySpecException e) {
-            System.err.println("La clave indicada en la clave publica del receptor no es válida");
-            System.out.println(e.getLocalizedMessage());
-        }
-        return clavePublica;
-    }
-
-    public static PrivateKey getClavePrivada(String ruta) {
-        File ficheroClavePrivada = new File(ruta);
-        PrivateKey clavePrivada = null;
-        try {
-
-            byte[] bytesClavePrivada = Files.readAllBytes(ficheroClavePrivada.toPath());
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(bytesClavePrivada);
-            clavePrivada = keyFactory.generatePrivate(privateKeySpec);
-
-        } catch (IOException e) {
-            System.err.println("Se ha producido un error en la lectura del fichero de clave privada del receptor");
-            System.out.println(e.getLocalizedMessage());
-        } catch (NoSuchAlgorithmException e) {
-            System.err.println("No existe el algoritmo especificado");
-            System.out.println(e.getLocalizedMessage());
-        } catch (InvalidKeySpecException e) {
-            System.err.println("La clave indicada en la clave privada del receptor no es válida");
-            System.out.println(e.getLocalizedMessage());
-        }
-        return clavePrivada;
+        //Guardamos la clave publica en un array de bytes
+        byte[] publicKeyBytes = clavePublica.getEncoded();
+        //Leemos la clave pública
+        FileOutputStream publicFos = new FileOutputStream(PUBLIC_KEY_FILE);
+        //Escribimos el archivo de clave publica
+        publicFos.write(publicKeyBytes);
+        //Cerramos el flujo de escritura
+        publicFos.close();
     }
 }
+
+
