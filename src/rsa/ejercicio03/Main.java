@@ -1,28 +1,76 @@
 package rsa.ejercicio03;
 
+import java.security.KeyPair;
+import java.util.Scanner;
+
 public class Main {
 
-    //Declaramos como constante la ruta del fichero que se va a encriptar y desencriptar
-    private static final String INPUT_FILE = "src/rsa/ejercicio03/fichero.txt";
-
     public static void main(String[] args) {
-        try {
-            //Generamos las claves pública y privada
-            KeysManager.generateKeys();
 
-            //Encriptamos el archivo
-            Encriptar.encriptarFichero(INPUT_FILE);
+        //Declaramso las variables
+        int opcion; //Opción del menú
 
-            //Desencriptamos el archivo
-            Desencriptar.desencriptarFicheros();
+        //Declaramos el scanner para leer la opción del menú
+        Scanner sc = new Scanner(System.in);
 
-            //Mostramos un mensaje de éxito por consola
-            System.out.println("Proceso de encriptación y desencriptación completado con éxito.");
-        } catch (Exception e) {
+        //Generamos las claves pública y privada del emisor y del receptor
+        KeyPair clavesEmisor = ClavesEmisor.generarClavesEmisor();
+        KeyPair clavesReceptor = ClavesReceptor.generarClavesReceptor();
 
-            System.err.println("Error al encriptar o desencriptar el archivo");
-            e.printStackTrace();
-        }
+        //Guardamos las claves en un fichero
+        ClavesEmisor.guardarClaves(clavesEmisor);
+        ClavesReceptor.guardarClaves(clavesReceptor);
+
+        do { //Mientras el usuario no elija la opción de salir
+
+            //Mostramos el menú y leemos la opción elegida por el usuario
+            menu();
+            opcion = sc.nextInt();
+
+            switch (opcion){
+                case 1->{ //Cifrar
+
+                    //Declaramos las variables
+                    String rutaFichero; //Ruta del fichero a cifrar
+
+                    //Pedimos la ruta del fichero a cifrar
+                    System.out.println("Introduce la ruta del fichero a cifrar:");
+                    rutaFichero = sc.next();
+
+                    //Ciframos el fichero
+                    Encriptar.encriptarFichero(rutaFichero);
+                }
+
+                case 2->{ //Descifrar
+
+                    //Declaramos las variables
+                    String rutaFichero; //Ruta del fichero a descifrar
+
+                    //Pedimos la ruta del fichero a descifrar
+                    System.out.println("Introduce la ruta del fichero a descifrar:");
+                    rutaFichero = sc.next();
+
+                    Descifrar.descifrarFichero(rutaFichero);
+                }
+
+                case 3->{ //Salir
+                    System.out.println("Adios!");
+                }
+
+                default -> System.out.println("Opción no válida");
+            }
+
+
+        }while (opcion != 3);
+
+        //Cerramos el scanner
+        sc.close();
+    }
+
+    private static void menu(){
+        System.out.println("Elige una opción:");
+        System.out.println("[1] Cifrar fichero");
+        System.out.println("[2] Descifrar fichero");
+        System.out.println("[3] Salir");
     }
 }
-

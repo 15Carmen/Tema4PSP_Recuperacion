@@ -1,128 +1,103 @@
 package rsa.ejercicio03;
-
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.security.KeyFactory;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.spec.X509EncodedKeySpec;
+import java.util.Scanner;
 
 public class Encriptar {
 
-    //Declaramos las constantes
-    private static final String PUBLIC_KEY_FILE = "public.key";
-    private static final String ENCRYPTED_FILE = "src/rsa/ejercicio03/ficheroEncriptado.txt";
+    public static void encriptarFichero(String ruta){
 
-    /**
-     * Método que encripta un archivo con la clave pública del receptor.
-     *
-     * @param ficheroEntrada Nombre del archivo a encriptar
-     * @throws Exception Excepción que se lanza si ocurre un error
-     */
-    public static void encriptarFichero(String ficheroEntrada) throws Exception{
+        //Declaramos los arrays de bytes que vamos a utilizar
+        byte [] mensajeCifradoPrivada;  //array de bytes que contendrá el mensaje cifrado por la clave privada del emisor
+        byte [] mensajeCifradoPublica;  //array de bytes que contendrá el mensaje cifrado por la clave pública del receptor
 
-        //Cargamos la clave pública del receptor
-        byte[] clavePublicaBytes = leerClavePublica();
+        try {
+            //Inicializamos los cipher con las claves públicas y privadas
+            PrivateKey clavePrivadaEmisor = ClavesEmisor.getClavePrivada();
+            Cipher cifradorEmisor = Cipher.getInstance("RSA");
+            cifradorEmisor.init(Cipher.ENCRYPT_MODE, clavePrivadaEmisor);
 
-        //Generamos la clave pública
-        PublicKey clavePublica = generatePublicKey(clavePublicaBytes);
+            PublicKey clavePublicaReceptor = ClavesReceptor.getClavePublica();
+            Cipher cifradorReceptor = Cipher.getInstance("RSA");
+            cifradorReceptor.init(Cipher.ENCRYPT_MODE, clavePublicaReceptor);
 
-        //Leemos el archivo a encriptar y lo guardamos en un array de bytes
-        byte[] ficheroEntradaBytes = leerArchivoEntrada(ficheroEntrada);
+            //Ciframos el mensaje
+            mensajeCifradoPrivada = cifradorEmisor.doFinal(leerFichero(ruta).readAllBytes());
+            mensajeCifradoPublica = cifradorReceptor.doFinal(mensajeCifradoPrivada);
 
-        //Encriptamos el archivo con la clave pública del receptor
-        byte[] ficheroEncriptadoBytes = encriptar(ficheroEntradaBytes, clavePublica);
+            //Guardamos el mensaje cifrado en un fichero
+            guardarFichero(mensajeCifradoPublica);
+            System.out.println("Mensaje cifrado correctamente");
 
-        //Guardamos el archivo encriptado llamando al método guardarFicheroEncriptado
-        guardarFicheroEncriptado(ficheroEncriptadoBytes);
+        } catch (NoSuchPaddingException e) { //Si el padding no es válido saltará una excepción
+            System.err.println("No existe el padding seleccionado");
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) { //Si el algoritmo no es válido saltará una excepción
+            System.err.println("El algoritmo seleccionado no existe");
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) { //Si el tamaño del bloque no es válido saltará una excepción
+            System.err.println("El tamaño del bloque utilizado no es correcto");
+            e.printStackTrace();
+        } catch (BadPaddingException e) { //Si el padding no es válido saltará una excepción
+            System.err.println("El padding utilizado es erróneo");
+            e.printStackTrace();
+        } catch (InvalidKeyException e) { //Si la clave no es válida saltará una excepción
+            System.err.println("La clave introducida no es válida");
+            e.printStackTrace();
+        } catch (IOException e) { //Si hay un error de lectura del fichero saltará una excepción
+            System.err.println("Error de lectura del fichero");
+            e.printStackTrace();
+        }
     }
 
     /**
-     * Método que lee la clave pública del receptor
-     *
-     * @return Array de bytes con la clave pública del receptor
-     * @throws Exception Excepción que se lanza si ocurre un error
+     * Método que lee un fichero y lo devuelve como un FileInputStream
+     * @return Datos del fichero en un FileInputStream
      */
-    private static byte[] leerClavePublica() throws Exception {
+    private static FileInputStream leerFichero (String ruta){
 
-        //Leemos la clave pública del receptor
-        FileInputStream keyFis = new FileInputStream(PUBLIC_KEY_FILE);
-        //Guardamos la clave pública en un array de bytes
-        byte[] clavePublicaBytes = new byte[keyFis.available()];
-        //Leemos la clave pública del receptor
-        keyFis.read(clavePublicaBytes);
-        //Cerramos el flujo de lectura
-        keyFis.close();
+        //Declaramos un FileInputStream para leer el fichero
+        FileInputStream fileInputStream = null;
 
-        //Devolvemos la clave pública del receptor
-        return clavePublicaBytes;
+        try {
+            //Inicializamos el FileInputStream con la ruta del fichero
+            fileInputStream = new FileInputStream(ruta);
+
+        } catch (FileNotFoundException e) { //Si el fichero no existe saltará una excepción
+            System.err.println("Fichero no encontrado");
+            e.printStackTrace();
+        }
+
+        //Devolvemos el FileInputStream
+        return fileInputStream;
     }
 
     /**
-     * Método que genera la clave pública del receptor
-     *
-     * @param clavePublicaBytes
-     * @return Clave pública del receptor
-     * @throws Exception Excepción que se lanza si ocurre un error
+     * Método que guarda un array de bytes en un fichero
+     * @param mensajeCifrado Array de bytes que se va a guardar en el fichero
      */
-    private static PublicKey generatePublicKey(byte[] clavePublicaBytes) throws Exception {
+    private static void guardarFichero (byte [] mensajeCifrado){
 
-        //Generamos un objeto de clave RSA
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        //Generamos la clave pública del receptor a partir de la clave pública en bytes
-        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(clavePublicaBytes);
-        //Devolvemos la clave pública del receptor
-        return keyFactory.generatePublic(publicKeySpec);
-    }
+        try {
+            //Inicializamos un FileOutputStream con la ruta del fichero
+            FileOutputStream fileOutputStream = new FileOutputStream("src/rsa/ejercicio03/ficheroEncriptado.txt");
 
-    /**
-     * Método que lee el archivo a encriptar y lo guarda en un array de bytes
-     *
-     * @param archivoEntrada Nombre del archivo a encriptar
-     * @return Array de bytes con el archivo a encriptar
-     * @throws Exception Excepción que se lanza si ocurre un error
-     */
-    private static byte[] leerArchivoEntrada(String archivoEntrada) throws Exception {
-        //Leemos el archivo a encriptar
-        FileInputStream fis = new FileInputStream(archivoEntrada);
-        //Guardamos el archivo a encriptar en un array de bytes
-        byte[] archivoEncriptadoBytes = new byte[fis.available()];
-        //Leemos el archivo a encriptar
-        fis.read(archivoEncriptadoBytes);
-        //Cerramos el flujo de lectura
-        fis.close();
-        //Devolvemos el array de bytes con el archivo a encriptar
-        return archivoEncriptadoBytes;
-    }
+            //Escribimos el array de bytes en el fichero
+            fileOutputStream.write(mensajeCifrado);
 
-    /**
-     * Método que encripta el archivo con la clave pública del receptor
-     * @param archivoEncriptadoBytes Array de bytes con el archivo a encriptar
-     * @param clavePublica Clave pública del receptor
-     * @return  Array de bytes con el archivo encriptado
-     * @throws Exception Excepción que se lanza si ocurre un error
-     */
-    private static byte[] encriptar(byte[] archivoEncriptadoBytes, PublicKey clavePublica) throws Exception {
+            //Cerramos el FileOutputStream
+            fileOutputStream.close();
 
-        //Creamos el cipher del mensaje con el algoritmo RSA
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        //Inicializamos el cipher en modo encriptación con la clave pública del receptor
-        cipher.init(Cipher.ENCRYPT_MODE, clavePublica);
-        //Devolvemos el archivo encriptado
-        return cipher.doFinal(archivoEncriptadoBytes);
-    }
-
-    /**
-     * Método que guarda el archivo encriptado
-     * @param archivoEncriptadoBytes Array de bytes con el archivo encriptado
-     * @throws Exception Excepción que se lanza si ocurre un error
-     */
-    private static void guardarFicheroEncriptado(byte[] archivoEncriptadoBytes) throws Exception {
-        //Guardamos el archivo encriptado
-        FileOutputStream fos = new FileOutputStream(ENCRYPTED_FILE);
-        //Escribimos el archivo encriptado
-        fos.write(archivoEncriptadoBytes);
-        //Cerramos el flujo de escritura
-        fos.close();
+        } catch (IOException e) { //Si hay un error de escritura del fichero saltará una excepción
+            System.err.println("Error de escritura del fichero");
+            e.printStackTrace();
+        }
     }
 }
